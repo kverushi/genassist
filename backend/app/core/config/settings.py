@@ -94,21 +94,21 @@ class ProjectSettings(BaseSettings):
     AUTO_MIGRATE: bool = True
     API_VERSION: Optional[str] = "1.0"
     OPENAPI_PATH: str = "openapi.json"
-    WHATSAPP_TOKEN: str = "<enter-value-here>"
+    WHATSAPP_TOKEN: Optional[str] = None
 
-    SLACK_TOKEN: str = "<enter-value-here>"
-    SLACK_SIGNING_SECRET: str = "<enter-value-here>"
+    SLACK_TOKEN: Optional[str] = None
+    SLACK_SIGNING_SECRET: Optional[str] = None
 
-    GMAIL_CLIENT_ID: Optional[str] = "<enter-value-here>"
-    GMAIL_CLIENT_SECRET: Optional[str] = "<enter-value-here>"
+    GMAIL_CLIENT_ID: Optional[str] = None
+    GMAIL_CLIENT_SECRET: Optional[str] = None
 
-    MICROSOFT_CLIENT_ID: Optional[str] = "<enter-value-here>"
-    MICROSOFT_CLIENT_SECRET: Optional[str] = "<enter-value-here>"
-    MICROSOFT_TENANT_ID: Optional[str] = "<enter-value-here>"
+    MICROSOFT_CLIENT_ID: Optional[str] = None
+    MICROSOFT_CLIENT_SECRET: Optional[str] = None
+    MICROSOFT_TENANT_ID: Optional[str] = None
 
-    ZENDESK_SUBDOMAIN: Optional[str] = "<enter-value-here>"
-    ZENDESK_EMAIL: Optional[str] = "<enter-value-here>"
-    ZENDESK_API_TOKEN: Optional[str] = "<enter-value-here>"
+    ZENDESK_SUBDOMAIN: Optional[str] = None
+    ZENDESK_EMAIL: Optional[str] = None
+    ZENDESK_API_TOKEN: Optional[str] = None
     ZENDESK_CUSTOM_FIELD_CONVERSATION_ID: Optional[int] = 0
 
     AWS_RECORDINGS_BUCKET: Optional[str] = "genassist-dev-temp-bucket"
@@ -120,9 +120,9 @@ class ProjectSettings(BaseSettings):
     MAX_CONNECTIONS: int = 20
     MAX_KEEPALIVE_CONNECTIONS: int = 10
 
-    # Test credentials
-    TEST_USERNAME: Optional[str] = "test"
-    TEST_PASSWORD: Optional[str] = "test"
+    # Test credentials (set via env; no default to avoid CWE-798 hardcoded credentials)
+    TEST_USERNAME: Optional[str] = None
+    TEST_PASSWORD: Optional[str] = None
 
     # Check if inside celery container
     BACKGROUND_TASK: bool = False

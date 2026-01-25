@@ -1,5 +1,7 @@
+# Prefer PyPI release for security updates (CVEs in older git pin: deserialization, ReDoS, use-after-free).
+# Use git ref only if a specific commit is required.
+openai-whisper>=20240930
 fastapi
 uvicorn[standard]
-openai-whisper @ git+https://github.com/openai/whisper.git@517a43ecd132a2089d85f4ebc044728a71d49f6e
 python-multipart
 aiofiles==24.1.0

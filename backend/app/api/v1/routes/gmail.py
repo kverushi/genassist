@@ -1,12 +1,10 @@
 from uuid import UUID
-from fastapi import APIRouter, Depends, HTTPException, status
+from fastapi import APIRouter, Depends, HTTPException, Request, status
 from pydantic import BaseModel
 from typing import Dict, Any
 import logging
 from app.core.permissions.constants import Permissions as P
-from requests import request
 from app.auth.dependencies import auth, permissions
-from app.core.utils.encryption_utils import decrypt_key
 from app.core.utils.gmail import get_access_token, get_user_email
 from app.schemas.datasource import DataSourceUpdate
 from app.services.app_settings import AppSettingsService
@@ -31,15 +29,27 @@ class GmailAuthResponse(BaseModel):
     status: str
     message: str
 
+
+def _validate_redirect_uri(redirect_uri: str, request_base: str) -> None:
+    """Reject open redirects (CWE-601): redirect_uri must be same-origin."""
+    base = request_base.rstrip("/")
+    if not redirect_uri.startswith(base) or redirect_uri.startswith(base + "//"):
+        raise HTTPException(
+            status_code=status.HTTP_400_BAD_REQUEST,
+            detail="Redirect URI must match application origin",
+        )
+
+
 # TODO choose which permissions to use
 @router.post("/oauth/callback", response_model=GmailAuthResponse, dependencies=[
     Depends(auth),
     Depends(permissions(P.AppSettings.WRITE))  # Adjust permission as needed
 ])
 async def store_oauth_code(
+    request: Request,
     gmail_req: GmailAuthRequest,
     data_source_service: DataSourceService = Injected(DataSourceService),
-    app_settings_service=Injected(AppSettingsService)
+    app_settings_service=Injected(AppSettingsService),
 ):
     """
     Exchange Gmail authorization code for access and refresh tokens
@@ -47,9 +57,11 @@ async def store_oauth_code(
     logger.info(f"Received Gmail auth code: {gmail_req.code}")
     try:
         logger.info("Exchanging Gmail authorization code for tokens")
+        base_url = str(request.base_url).rstrip("/")
         if not gmail_req.redirect_uri:
-            redirect_uri = request.base_url + "gauth/callback"
+            redirect_uri = base_url + "/gauth/callback"
         else:
+            _validate_redirect_uri(gmail_req.redirect_uri, base_url)
             redirect_uri = gmail_req.redirect_uri
 
         # Get data source to extract app_settings_id

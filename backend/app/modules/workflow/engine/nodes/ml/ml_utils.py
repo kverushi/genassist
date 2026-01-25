@@ -285,6 +285,20 @@ def resolve_csv_file_path(
                 if not file_path.exists():
                     file_path = DATA_VOLUME / file_url
 
+        # Prevent path traversal: ensure resolved path stays under DATA_VOLUME (CWE-23)
+        data_volume_resolved = DATA_VOLUME.resolve()
+        try:
+            file_path_resolved = file_path.resolve()
+            file_path_resolved.relative_to(data_volume_resolved)
+            file_path = file_path_resolved
+        except (OSError, RuntimeError):
+            pass  # resolve() can fail on missing path; existence check below will handle it
+        except ValueError:
+            raise AppException(
+                error_key=ErrorKey.FILE_NOT_FOUND,
+                error_detail="Access denied: path must be under data volume",
+            )
+
         # Validate file exists
         if not file_path.exists():
             raise AppException(

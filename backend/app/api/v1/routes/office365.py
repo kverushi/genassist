@@ -1,5 +1,5 @@
 from uuid import UUID
-from fastapi import APIRouter, Depends, HTTPException, status
+from fastapi import APIRouter, Depends, HTTPException, Request, status
 from pydantic import BaseModel
 from typing import Dict, Any
 import logging
@@ -33,6 +33,17 @@ class Office365AuthResponse(BaseModel):
     status: str
     message: str
 
+
+def _validate_redirect_uri_oauth(redirect_uri: str, request_base: str) -> None:
+    """Reject open redirects (CWE-601): redirect_uri must be same-origin."""
+    base = request_base.rstrip("/")
+    if not redirect_uri.startswith(base) or redirect_uri.startswith(base + "//"):
+        raise HTTPException(
+            status_code=status.HTTP_400_BAD_REQUEST,
+            detail="Redirect URI must match application origin",
+        )
+
+
 # --- Endpoint ---
 
 
@@ -41,15 +52,18 @@ class Office365AuthResponse(BaseModel):
     Depends(permissions(P.AppSettings.WRITE))
 ])
 async def office365_callback(
+    request: Request,
     req: Office365AuthRequest,
     data_source_service: DataSourceService = Injected(DataSourceService),
-    app_settings_service: AppSettingsService = Injected(AppSettingsService)
+    app_settings_service: AppSettingsService = Injected(AppSettingsService),
 ):
     logger.info(f"Received Office365 auth code: {req.code}")
 
     try:
         if not req.redirect_uri:
             raise HTTPException(status_code=400, detail="Missing redirect_uri")
+        base_url = str(request.base_url).rstrip("/")
+        _validate_redirect_uri_oauth(req.redirect_uri, base_url)
 
         # Get data source to extract app_settings_id
         ds = await data_source_service.get_by_id(UUID(req.state))

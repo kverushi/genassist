@@ -102,7 +102,14 @@ class SMBShareFSService:
     # Internal helpers
     # --------------------------------------------------------------------------
     def _local_abspath(self, subpath: str) -> Path:
-        return (self.local_root / subpath).resolve()
+        """Resolve subpath under local_root; raise if path escapes (CWE-23 path traversal)."""
+        root = self.local_root.resolve()
+        resolved = (root / subpath).resolve()
+        try:
+            resolved.relative_to(root)
+        except ValueError:
+            raise ValueError(f"Path traversal not allowed: {subpath!r}") from None
+        return resolved
 
     def _smb_abspath(self, subpath: str) -> str:
         """

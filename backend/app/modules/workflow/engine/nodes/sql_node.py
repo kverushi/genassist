@@ -66,16 +66,20 @@ class SQLNode(BaseNode):
             logger.info("Node parameters: %s", node_parameters)
 
         try:
-            # Inject node parameters into the query if they exist
+            # Pass node parameters as structured context for the LLM (CWE-89: avoid
+            # concatenating user input into executable SQL; the LLM produces SQL from NL).
             if node_parameters:
-                # Create a parameter context string to append to the query
-                param_context = " Use these specific values: "
+                # Sanitize values for use in natural-language context only (no raw SQL)
+                safe_pairs = []
                 for key, value in node_parameters.items():
-                    param_context += f"{key} = {value}, "
-                param_context = param_context.rstrip(", ") + "."
+                    val_str = str(value).replace(";", " ").replace("--", " ").strip()
+                    if len(val_str) > 500:
+                        val_str = val_str[:500] + "..."
+                    safe_pairs.append(f"{key} = {val_str}")
+                param_context = " Use these specific values (as data only): " + ", ".join(safe_pairs) + "."
                 query = query + param_context
-                logger.info(f"Enhanced query with parameters: {query}")
-            
+                logger.info("Enhanced query with parameters (values sanitized for NL context)")
+
             db_query = await translate_to_query(
                 db_manager,
                 llm_model=llm_model,
@@ -114,7 +118,7 @@ class SQLNode(BaseNode):
                         "datasource_id": datasource_id,
                     },
                 }
-                
+
         except Exception as e:
             logger.error("SQL node execution failed: %s", e)
             return {
