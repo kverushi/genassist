@@ -8422,7 +8422,7 @@
         ],
         "summary": "Download File",
         "description": "Download a file by ID.",
-        "operationId": "download_file_api_file_manager_files__file_id__download_head",
+        "operationId": "download_file",
         "parameters": [
           {
             "name": "file_id",
@@ -8463,7 +8463,7 @@
         ],
         "summary": "Download File",
         "description": "Download a file by ID.",
-        "operationId": "download_file_api_file_manager_files__file_id__download_head",
+        "operationId": "download_file",
         "parameters": [
           {
             "name": "file_id",
@@ -8505,7 +8505,7 @@
           "FileManager"
         ],
         "summary": "Get File Source",
-        "operationId": "get_file_source_api_file_manager_files__file_id__source_head",
+        "operationId": "get_file_source",
         "parameters": [
           {
             "name": "file_id",
@@ -8545,7 +8545,7 @@
           "FileManager"
         ],
         "summary": "Get File Source",
-        "operationId": "get_file_source_api_file_manager_files__file_id__source_head",
+        "operationId": "get_file_source",
         "parameters": [
           {
             "name": "file_id",
