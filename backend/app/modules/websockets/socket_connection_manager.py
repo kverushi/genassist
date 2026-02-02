@@ -65,8 +65,6 @@ class SocketConnectionManager:
         tenant_id: str | None = None,
         topics: Sequence[str] | None = None,
     ) -> None:
-        if not settings.USE_WS:
-            return
         await websocket.accept()
         topics = topics or ()
 
@@ -116,8 +114,6 @@ class SocketConnectionManager:
         If room_id is None, searches all rooms to find and remove the websocket.
         This is useful for unexpected disconnections where we don't know which room/tenant.
         """
-        if not settings.USE_WS:
-            return
         async with self._lock:
             if room_id is not None:
                 # Direct disconnect from known room
