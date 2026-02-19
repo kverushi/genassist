@@ -53,6 +53,29 @@ class ChatInputNode(BaseNode):
                         "conversation_history", conversation_history
                     )
 
+            # Handle stateful parameters
+            memory = self.get_memory()
+            for param_name, param_schema in input_schema.items():
+                if param_schema.get("stateful", False):
+                    # Check if value is already in session
+                    stateful_value = session.get(param_name, None)
+                    if stateful_value is None or stateful_value == "":
+                        # Load from Redis
+                        stateful_value = await memory.get_stateful_value(param_name, None)
+                        if stateful_value is not None:
+                            session[param_name] = stateful_value
+                            validated_data[param_name] = stateful_value
+                            self.get_state().update_session_value(param_name, stateful_value)
+                        elif param_schema.get("required", False) is False and "defaultValue" in param_schema:
+                            # Use default value if not required and no stored value
+                            default_value = param_schema["defaultValue"]
+                            session[param_name] = default_value
+                            validated_data[param_name] = default_value
+                            self.get_state().update_session_value(param_name, default_value)
+                    else:
+                        # Value already in session, use it
+                        validated_data[param_name] = stateful_value
+
             self.set_node_input(validated_data)
             return validated_data
         except ValueError as e:

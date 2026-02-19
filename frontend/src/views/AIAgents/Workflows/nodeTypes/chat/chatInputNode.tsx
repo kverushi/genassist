@@ -96,6 +96,7 @@ const ChatInputNode: React.FC<NodeProps<ChatInputNodeData>> = ({
           removeItem={removeItem}
           suggestParams={true}
           listSuggestedParams={DEFAULT_SUGGESTED_PARAMS}
+          allowStateful={true}
         />
       </div>
     </BaseNodeContainer>
