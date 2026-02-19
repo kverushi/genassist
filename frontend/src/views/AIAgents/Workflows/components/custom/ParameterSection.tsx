@@ -371,7 +371,7 @@ export const ParameterSection: FC<ParameterSectionProps> = ({
             <Badge
               key={name}
               variant="secondary"
-              className="cursor-pointer hover:bg-secondary/80 break-words"
+              className={`cursor-pointer hover:bg-secondary/80 break-words ${param.stateful ? 'bg-blue-500 text-white' : ''}`}
               onClick={() => handleParamClick(name)}
             >
               {name}

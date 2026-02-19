@@ -49,7 +49,7 @@ export const SetStateDialog: React.FC<SetStateDialogProps> = (props) => {
         if (nodeData?.inputSchema) {
           const inputSchema = nodeData.inputSchema as Record<string, SchemaField>;
           Object.entries(inputSchema).forEach(([key, field]) => {
-            if (field?.stateful) {
+            if (field?.stateful && key !== "conversation_history") {
               params.push(key);
             }
           });

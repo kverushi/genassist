@@ -16,7 +16,7 @@ const SetStateNode: React.FC<NodeProps<SetStateNodeData>> = ({
   selected,
 }) => {
   const nodeDefinition = nodeRegistry.getNodeType(SET_STATE_NODE_TYPE);
-  const color = getNodeColor(nodeDefinition?.category || "formatting");
+  const color = getNodeColor(nodeDefinition?.category || "io");
   const [isEditDialogOpen, setIsEditDialogOpen] = useState(false);
 
   const onUpdate = (updatedData: Partial<SetStateNodeData>) => {
