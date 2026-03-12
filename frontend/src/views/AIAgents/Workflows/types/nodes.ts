@@ -360,6 +360,28 @@ export interface WorkflowExecutorNodeData extends BaseNodeData {
   inputParameters: Record<string, string>; // Input parameters for the workflow
 }
 
+// Guardrail Provenance Node Data
+export interface GuardrailProvenanceNodeData extends BaseNodeData {
+  answer_field?: string;
+  context_field?: string;
+  min_score?: number;
+  fail_on_violation?: boolean;
+  use_llm_judge?: boolean;
+  llm_provider_id?: string;
+  provenance_mode?: "embeddings" | "llm";
+  embedding_type?: "openai" | "huggingface" | "bedrock";
+  embedding_model_name?: string;
+}
+
+// Guardrail NLI Node Data
+export interface GuardrailNliNodeData extends BaseNodeData {
+  answer_field?: string;
+  evidence_field?: string;
+  min_entail_score?: number;
+  fail_on_contradiction?: boolean;
+  nli_model_name?: string;
+}
+
 // Union type for all node data types
 export type NodeData =
   | ChatInputNodeData
@@ -387,7 +409,9 @@ export type NodeData =
   | MCPNodeData
   | WorkflowExecutorNodeData
   | HumanInTheLoopNodeData
-  | SetStateNodeData;
+  | SetStateNodeData
+  | GuardrailProvenanceNodeData
+  | GuardrailNliNodeData;
 // Node type definition
 export interface NodeTypeDefinition<T extends NodeData> {
   type: string;
